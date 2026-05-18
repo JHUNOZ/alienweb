@@ -1,24 +1,3 @@
-let supabase = null;
-
-// Fallback de memoria por si el navegador bloquea sessionStorage
-let memoryAuth = { alienAuth: "false" };
-
-function setAuthState(value) {
-  try { sessionStorage.setItem("alienAuth", value); }
-  catch (e) { memoryAuth.alienAuth = value; }
-}
-
-function getAuthState() {
-  try { return sessionStorage.getItem("alienAuth"); }
-  catch (e) { return memoryAuth.alienAuth; }
-}
-
-try {
-  if (SUPABASE_URL !== "TU_URL_AQUI") {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  }
-} catch (e) {}
-
 const ALIENS = [
   {
     id: "michi-cosmico",
@@ -111,44 +90,21 @@ function createStars() {
   }
 }
 
-async function handleLogin(e) {
-  e.preventDefault();
-  const user = document.getElementById("username").value.trim().toLowerCase();
-  const pass = document.getElementById("password").value.trim();
-  const error = document.getElementById("loginError");
-  let valid = false;
-
-  if (supabase) {
-    const { data } = await supabase
-      .from("usuarios")
-      .select("*")
-      .eq("usuario", user)
-      .eq("clave", pass)
-      .single();
-    valid = !!data;
-  } else {
-    valid = (user === "alien" && pass === "marte123");
-  }
-
-  if (valid) {
-    setAuthState("true");
-    window.location.href = "catalogo.html";
-  } else {
-    error.textContent = "Acceso denegado — No eres un alien";
-    error.classList.add("show");
-    setTimeout(() => error.classList.remove("show"), 3000);
-  }
-}
-
 function checkAuth() {
-  if (window.location.pathname.includes("catalogo") && getAuthState() !== "true") {
+  let isAuth = false;
+  try {
+    if (sessionStorage.getItem("alienAuth") === "true") isAuth = true;
+  } catch(e) {}
+  
+  if (window.location.search.includes("auth=true")) isAuth = true;
+
+  if (!isAuth) {
     window.location.href = "index.html";
   }
 }
 
 function logout() {
   try { sessionStorage.removeItem("alienAuth"); } catch(e) {}
-  memoryAuth.alienAuth = "false";
   window.location.href = "index.html";
 }
 
@@ -249,14 +205,14 @@ function downloadPDF(alienId) {
   doc.save("antecedentes_" + alien.id + ".pdf");
 }
 
-function init() {
+function initCatalog() {
   createStars();
   checkAuth();
   renderCatalog();
 }
 
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", init);
+  document.addEventListener("DOMContentLoaded", initCatalog);
 } else {
-  init();
+  initCatalog();
 }

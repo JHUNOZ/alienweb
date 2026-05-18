@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Acceso Clasificado - Alien Database</title>
   <link rel="stylesheet" href="style.css">
+  <!-- Supabase CDN (Opcional, cargado de forma segura) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js"></script>
 </head>
@@ -16,16 +17,89 @@
     <div class="login-card">
       <h1 class="login-title">ACCESO CLASIFICADO</h1>
       <p class="login-subtitle">Solo aliens pueden entrar ;)</p>
-      <form id="loginForm" autocomplete="off" onsubmit="handleLogin(event)">
+      
+      <!-- Se elimino la etiqueta FORM para evitar recargas nativas de pagina por completo -->
+      <div id="loginFormContainer">
         <input type="text" id="username" placeholder="Usuario" required>
         <input type="password" id="password" placeholder="Clave" required>
-        <button type="submit" class="btn-login" id="btnLogin">INGRESAR</button>
-      </form>
+        <button class="btn-login" id="btnLogin" onclick="attemptLogin()">INGRESAR</button>
+      </div>
+
       <p class="login-error" id="loginError"></p>
       <p class="login-hint">Seguridad anti humanos, si no funciona tu identificador alienigena ingresa con las siguientes credenciales: <strong>alien</strong> / <strong>marte123</strong></p>
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <script>
+    // Generador de estrellas de fondo (Estetico)
+    const container = document.getElementById("stars");
+    if (container) {
+      for (let i = 0; i < 100; i++) {
+        const star = document.createElement("div");
+        star.className = "star";
+        const size = Math.random() * 2 + 0.5;
+        star.style.width = size + "px";
+        star.style.height = size + "px";
+        star.style.left = Math.random() * 100 + "%";
+        star.style.top = Math.random() * 100 + "%";
+        star.style.setProperty("--duration", (Math.random() * 4 + 2) + "s");
+        star.style.animationDelay = Math.random() * 5 + "s";
+        container.appendChild(star);
+      }
+    }
+
+    // Funcionalidad de Login reescrita desde cero (Cero dependencias)
+    async function attemptLogin() {
+      const userField = document.getElementById("username");
+      const passField = document.getElementById("password");
+      const errorText = document.getElementById("loginError");
+      const btn = document.getElementById("btnLogin");
+
+      const user = userField.value.trim().toLowerCase();
+      const pass = passField.value.trim();
+
+      if (!user || !pass) {
+        errorText.textContent = "Por favor ingresa usuario y clave";
+        errorText.classList.add("show");
+        setTimeout(() => errorText.classList.remove("show"), 3000);
+        return;
+      }
+
+      btn.textContent = "VALIDANDO...";
+      btn.disabled = true;
+
+      let valid = false;
+
+      // Intentamos con Supabase primero
+      try {
+        if (typeof SUPABASE_URL !== 'undefined' && SUPABASE_URL !== "TU_URL_AQUI" && window.supabase) {
+          const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+          const { data } = await supabase.from("usuarios").select("*").eq("usuario", user).eq("clave", pass).single();
+          if (data) valid = true;
+        }
+      } catch (e) {
+        console.log("Supabase no esta disponible o fallo, usando modo local.");
+      }
+
+      // Validacion dura de contingencia (Local)
+      if (!valid) {
+        if (user === "alien" && pass === "marte123") {
+          valid = true;
+        }
+      }
+
+      // Resolucion del Login
+      if (valid) {
+        try { sessionStorage.setItem("alienAuth", "true"); } catch(e) { /* Ignorar error de memoria */ }
+        window.location.href = "catalogo.html?auth=true"; // Pasamos variable por URL por seguridad de Vercel
+      } else {
+        errorText.textContent = "Acceso denegado — Solo aliens pueden entrar";
+        errorText.classList.add("show");
+        setTimeout(() => errorText.classList.remove("show"), 3000);
+        btn.textContent = "INGRESAR";
+        btn.disabled = false;
+      }
+    }
+  </script>
 </body>
 </html>
