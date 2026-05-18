@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catalogo Alien Clasificado</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <div id="stars"></div>
+  <div class="grid-bg"></div>
+
+  <header class="catalog-header">
+    <span class="catalog-logo">ALIEN DATABASE</span>
+    <button class="btn-logout" onclick="logout()">SALIR</button>
+  </header>
+
+  <h1 class="catalog-title">CATALOGO CLASIFICADO</h1>
+
+  <section class="catalog-grid" id="catalogGrid"></section>
+
+  <script src="app.js"></script>
+</body>
+</html>

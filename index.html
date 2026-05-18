@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acceso Clasificado - Alien Database</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+</head>
+<body>
+  <div id="stars"></div>
+  <div class="grid-bg"></div>
+
+  <div class="login-wrapper">
+    <div class="login-card">
+      <h1 class="login-title">ACCESO CLASIFICADO</h1>
+      <p class="login-subtitle">Solo aliens pueden entrar ;)</p>
+      <form id="loginForm" autocomplete="off">
+        <input type="text" id="username" placeholder="Usuario" required>
+        <input type="password" id="password" placeholder="Clave" required>
+        <button type="submit" class="btn-login">INGRESAR</button>
+      </form>
+      <p class="login-error" id="loginError"></p>
+      <p class="login-hint">Seguridad anti humanos, si no funciona tu identificador alienigena ingresa con las siguientes credenciales: <strong>alien</strong> / <strong>marte123</strong></p>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
