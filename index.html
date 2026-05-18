@@ -16,10 +16,10 @@
     <div class="login-card">
       <h1 class="login-title">ACCESO CLASIFICADO</h1>
       <p class="login-subtitle">Solo aliens pueden entrar ;)</p>
-      <form id="loginForm" autocomplete="off">
+      <form id="loginForm" autocomplete="off" onsubmit="handleLogin(event)">
         <input type="text" id="username" placeholder="Usuario" required>
         <input type="password" id="password" placeholder="Clave" required>
-        <button type="submit" class="btn-login">INGRESAR</button>
+        <button type="submit" class="btn-login" id="btnLogin">INGRESAR</button>
       </form>
       <p class="login-error" id="loginError"></p>
       <p class="login-hint">Seguridad anti humanos, si no funciona tu identificador alienigena ingresa con las siguientes credenciales: <strong>alien</strong> / <strong>marte123</strong></p>

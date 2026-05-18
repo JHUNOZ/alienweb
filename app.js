@@ -252,8 +252,6 @@ function downloadPDF(alienId) {
 function init() {
   createStars();
   checkAuth();
-  const loginForm = document.getElementById("loginForm");
-  if (loginForm) loginForm.addEventListener("submit", handleLogin);
   renderCatalog();
 }
 
