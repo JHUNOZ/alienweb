@@ -1,4 +1,18 @@
 let supabase = null;
+
+// Fallback de memoria por si el navegador bloquea sessionStorage
+let memoryAuth = { alienAuth: "false" };
+
+function setAuthState(value) {
+  try { sessionStorage.setItem("alienAuth", value); }
+  catch (e) { memoryAuth.alienAuth = value; }
+}
+
+function getAuthState() {
+  try { return sessionStorage.getItem("alienAuth"); }
+  catch (e) { return memoryAuth.alienAuth; }
+}
+
 try {
   if (SUPABASE_URL !== "TU_URL_AQUI") {
     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -117,7 +131,7 @@ async function handleLogin(e) {
   }
 
   if (valid) {
-    sessionStorage.setItem("alienAuth", "true");
+    setAuthState("true");
     window.location.href = "catalogo.html";
   } else {
     error.textContent = "Acceso denegado — No eres un alien";
@@ -127,13 +141,14 @@ async function handleLogin(e) {
 }
 
 function checkAuth() {
-  if (window.location.pathname.includes("catalogo") && sessionStorage.getItem("alienAuth") !== "true") {
+  if (window.location.pathname.includes("catalogo") && getAuthState() !== "true") {
     window.location.href = "index.html";
   }
 }
 
 function logout() {
-  sessionStorage.removeItem("alienAuth");
+  try { sessionStorage.removeItem("alienAuth"); } catch(e) {}
+  memoryAuth.alienAuth = "false";
   window.location.href = "index.html";
 }
 
