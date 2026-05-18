@@ -234,10 +234,16 @@ function downloadPDF(alienId) {
   doc.save("antecedentes_" + alien.id + ".pdf");
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+function init() {
   createStars();
   checkAuth();
   const loginForm = document.getElementById("loginForm");
   if (loginForm) loginForm.addEventListener("submit", handleLogin);
   renderCatalog();
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", init);
+} else {
+  init();
+}
