@@ -127,82 +127,192 @@ function renderCatalog() {
   `).join("");
 }
 
-function downloadPDF(alienId) {
+async function downloadPDF(alienId) {
   const alien = ALIENS.find(a => a.id === alienId);
   if (!alien) return;
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  doc.setFillColor(6, 6, 14);
-  doc.rect(0, 0, 210, 297, "F");
-  doc.setFillColor(0, 30, 50);
-  doc.rect(0, 0, 210, 50, "F");
-  doc.setDrawColor(0, 180, 220);
-  doc.setLineWidth(0.5);
-  doc.line(10, 50, 200, 50);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(20);
-  doc.setTextColor(0, 212, 255);
-  doc.text("ANTECEDENTES CLASIFICADOS", 105, 20, { align: "center" });
-  doc.setFontSize(10);
-  doc.setTextColor(100, 140, 160);
-  doc.text("ALIEN DATABASE — NIVEL OMEGA", 105, 30, { align: "center" });
-  doc.text("Fecha: " + new Date().toLocaleDateString("es-CL"), 105, 38, { align: "center" });
-  let y = 62;
-  doc.setDrawColor(0, 100, 136);
-  doc.setLineWidth(0.3);
-  doc.rect(12, y - 5, 186, 35);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(16);
-  doc.setTextColor(0, 212, 255);
-  doc.text(alien.nombre.toUpperCase(), 20, y + 4);
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(11);
-  doc.setTextColor(180, 200, 210);
-  doc.text("Especie: " + alien.especie, 20, y + 13);
-  doc.text("Planeta: " + alien.planeta, 20, y + 21);
-  doc.text("Peligro: " + alien.peligro, 20, y + 29);
-  y += 45;
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
-  doc.setTextColor(0, 212, 255);
-  doc.text("DESCRIPCION", 20, y);
-  y += 7;
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(11);
-  doc.setTextColor(200, 210, 220);
-  const descLines = doc.splitTextToSize(alien.descripcion, 170);
-  doc.text(descLines, 20, y);
-  y += descLines.length * 6 + 10;
-  doc.setDrawColor(0, 100, 136);
-  doc.line(20, y - 4, 190, y - 4);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
-  doc.setTextColor(0, 212, 255);
-  doc.text("HABILIDADES", 20, y + 2);
-  y += 9;
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(11);
-  doc.setTextColor(200, 210, 220);
-  alien.habilidades.forEach(h => {
-    doc.text("> " + h, 20, y);
-    y += 7;
-  });
-  y += 6;
-  doc.setDrawColor(0, 100, 136);
-  doc.line(20, y - 3, 190, y - 3);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
-  doc.setTextColor(0, 212, 255);
-  doc.text("DATO CURIOSO", 20, y + 2);
-  y += 9;
-  doc.setFont("helvetica", "italic");
-  doc.setFontSize(11);
-  doc.setTextColor(180, 200, 210);
-  doc.text('"' + alien.dato + '"', 20, y);
-  doc.setFontSize(8);
-  doc.setTextColor(60, 80, 100);
-  doc.text("ALIEN DATABASE — TOP SECRET — Proyecto Universitario 2026", 105, 287, { align: "center" });
-  doc.save("antecedentes_" + alien.id + ".pdf");
+  
+  const btn = document.querySelector(`#card-${alienId} .btn-download`);
+  let originalText = "DESCARGAR ANTECEDENTES";
+  if (btn) {
+    originalText = btn.textContent;
+    btn.textContent = "GENERANDO...";
+    btn.disabled = true;
+  }
+
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Fondo Oscuro General
+    doc.setFillColor(10, 10, 15);
+    doc.rect(0, 0, 210, 297, "F");
+
+    // Borde de documento
+    doc.setDrawColor(0, 212, 255);
+    doc.setLineWidth(1);
+    doc.rect(5, 5, 200, 287);
+
+    // Cabecera superior
+    doc.setFillColor(0, 30, 50);
+    doc.rect(5, 5, 200, 30, "F");
+    
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.setTextColor(255, 50, 50);
+    doc.text("/// CLASIFICADO - TOP SECRET ///", 105, 18, { align: "center" });
+    
+    doc.setFontSize(10);
+    doc.setTextColor(0, 212, 255);
+    doc.text("ALIEN DATABASE EXTRATERRESTRIAL CATALOG", 105, 26, { align: "center" });
+    doc.text("FECHA DE ACCESO: " + new Date().toLocaleDateString("es-CL"), 105, 32, { align: "center" });
+
+    // Linea separadora
+    doc.setDrawColor(0, 212, 255);
+    doc.setLineWidth(0.5);
+    doc.line(5, 35, 205, 35);
+
+    // Cargar imagen de forma asincrona
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.src = alien.img;
+    
+    await new Promise((resolve) => {
+      img.onload = resolve;
+      img.onerror = resolve;
+    });
+
+    let startY = 45;
+
+    // Colocar imagen
+    if (img.complete && img.naturalWidth > 0) {
+      doc.setDrawColor(0, 212, 255);
+      doc.setLineWidth(0.5);
+      doc.rect(15, startY, 70, 70); 
+      doc.addImage(img, 'JPEG', 16, startY + 1, 68, 68);
+    } else {
+      doc.setDrawColor(255, 0, 0);
+      doc.rect(15, startY, 70, 70);
+      doc.setTextColor(255, 0, 0);
+      doc.text("FOTO NO", 50, startY + 30, { align: "center" });
+      doc.text("DISPONIBLE", 50, startY + 40, { align: "center" });
+    }
+
+    // Caja de datos a la derecha
+    doc.setFillColor(15, 20, 25);
+    doc.rect(90, startY, 105, 70, "F");
+    doc.setDrawColor(0, 100, 136);
+    doc.rect(90, startY, 105, 70);
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.setTextColor(0, 212, 255);
+    doc.text("IDENTIFICACION DE SUJETO", 95, startY + 8);
+    
+    doc.setFontSize(11);
+    doc.setTextColor(180, 200, 210);
+    
+    let infoY = startY + 18;
+    doc.setFont("helvetica", "bold");
+    doc.text("NOMBRE: ", 95, infoY);
+    doc.setFont("helvetica", "normal");
+    doc.text(alien.nombre.toUpperCase(), 125, infoY);
+    
+    infoY += 10;
+    doc.setFont("helvetica", "bold");
+    doc.text("ESPECIE: ", 95, infoY);
+    doc.setFont("helvetica", "normal");
+    const specLines = doc.splitTextToSize(alien.especie, 65);
+    doc.text(specLines, 125, infoY);
+    infoY += specLines.length * 5 + 5;
+    
+    doc.setFont("helvetica", "bold");
+    doc.text("PLANETA: ", 95, infoY);
+    doc.setFont("helvetica", "normal");
+    doc.text(alien.planeta, 125, infoY);
+    
+    infoY += 10;
+    doc.setFont("helvetica", "bold");
+    doc.text("PELIGRO: ", 95, infoY);
+    doc.setFont("helvetica", "bold");
+    
+    if (alien.peligro === "BAJO") doc.setTextColor(0, 255, 0);
+    else if (alien.peligro === "MODERADO") doc.setTextColor(255, 255, 0);
+    else if (alien.peligro === "ALTO") doc.setTextColor(255, 128, 0);
+    else doc.setTextColor(255, 0, 0);
+    doc.text(alien.peligro, 125, infoY);
+
+    startY += 80;
+
+    // Detalles
+    doc.setFillColor(0, 30, 50);
+    doc.rect(15, startY, 180, 8, "F");
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.setTextColor(0, 212, 255);
+    doc.text("INFORME DE COMPORTAMIENTO", 18, startY + 6);
+
+    startY += 15;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+    doc.setTextColor(200, 210, 220);
+    const descLines = doc.splitTextToSize(alien.descripcion, 180);
+    doc.text(descLines, 15, startY);
+
+    startY += descLines.length * 6 + 10;
+
+    // Habilidades
+    doc.setFillColor(0, 30, 50);
+    doc.rect(15, startY, 180, 8, "F");
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.setTextColor(0, 212, 255);
+    doc.text("CAPACIDADES REGISTRADAS", 18, startY + 6);
+
+    startY += 13;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+    doc.setTextColor(200, 210, 220);
+    alien.habilidades.forEach(h => {
+      doc.text(">> " + h, 18, startY);
+      startY += 7;
+    });
+
+    startY += 5;
+
+    // Dato Curioso
+    doc.setFillColor(0, 30, 50);
+    doc.rect(15, startY, 180, 8, "F");
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.setTextColor(0, 212, 255);
+    doc.text("NOTA ADICIONAL DEL AGENTE", 18, startY + 6);
+
+    startY += 13;
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(11);
+    doc.setTextColor(255, 200, 0);
+    const datoLines = doc.splitTextToSize('"' + alien.dato + '"', 180);
+    doc.text(datoLines, 15, startY);
+
+    // Footer
+    doc.setDrawColor(0, 212, 255);
+    doc.setLineWidth(0.5);
+    doc.line(5, 280, 205, 280);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.setTextColor(60, 100, 120);
+    doc.text("DOCUMENTO GENERADO POR SISTEMA ALIENWEB — REPRODUCCION PROHIBIDA", 105, 285, { align: "center" });
+
+    doc.save("Expediente_" + alien.id + ".pdf");
+  } catch (error) {
+    console.error("Error al generar PDF:", error);
+    alert("Hubo un error al generar el PDF.");
+  } finally {
+    if (btn) {
+      btn.textContent = originalText;
+      btn.disabled = false;
+    }
+  }
 }
 
 function initCatalog() {
