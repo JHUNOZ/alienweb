@@ -1,3 +1,4 @@
+// Base de datos local: Especies extraterrestres clasificadas
 const ALIENS = [
   {
     id: "michi-cosmico",

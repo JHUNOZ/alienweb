@@ -1,2 +1,3 @@
+// Configuración principal de base de datos
 const SUPABASE_URL = "https://zbcijhibmhkerqokhepl.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpiY2lqaGlibWhrZXJxb2toZXBsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxMDczMzYsImV4cCI6MjA5NDY4MzMzNn0.rAat8lPPbWYNejzMPizdeTle2vyCPe992xNpUdFf6Ng";
